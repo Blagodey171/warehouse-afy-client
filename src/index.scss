@@ -1,0 +1,49 @@
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+:root {
+    --widthForTransformHeader330: (max-width: 330px),
+    --widthForTransformHeader530: (max-width: 530px),
+    --widthForTransformHeader580: (max-width: 580px),
+    --widthForTransformHeader700: (max-width: 700px),
+    --widthForTransformHeader900: (max-width: 900px),
+    --bgColorApp: rgb(241, 241, 241);
+    --bgColorHeader: rgb(255, 219, 164);
+
+    --buttonShadowColor: rgba(2, 78, 177, 0.199);
+    --buttonShadow: 0 0 8px 1px inset rgba(2, 78, 177, 0.116);
+}
+button {
+    border: none;
+    outline: none;
+    border: 2px solid black;
+    cursor: pointer;
+}
+
+input {
+    outline: none;
+}
+a,
+a:hover,
+a:focus {
+    color: black;
+    text-decoration: none;
+}
+
+select {
+    outline: none;
+    border: none;
+    background-color: none;
+}
+
+body {
+    max-width: 1800px;
+    width: 100%;
+
+    margin: 0 auto;
+}
+
