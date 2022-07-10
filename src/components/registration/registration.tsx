@@ -6,25 +6,30 @@ import { connect } from 'react-redux'
 import { registrationThunk, } from '../../redux/loginReducer'
 import { settingsValidation } from '../../settings-validation/settings-validation'
 import { loginHoc } from '../../HOC/redirect'
+import Toast from '../login/toastLogin/toastLogin'
 interface RegistrationData {
-    login: String;
-    password: String;
+    login: string;
+    password: string;
 }
-
-const Registration = (props: any) => {
+interface Iprops {
+    newUserLogin: string,
+    errorMessage: string,
+    errorCode: number,
+    registrationThunk(login: string, password: string) : void
+}
+const Registration:React.FC<Iprops> = (props) => {
     const { register, handleSubmit, formState: { errors } } = useForm()
-    // const [color, setcolor] = useState(true)
 
     const registrationHandler = (data: RegistrationData) => {
-        // setcolor(!color)
         props.registrationThunk(data.login, data.password)
     }
-    console.log('registration')
     return (
 
         <section className='login-container'>
             {
-                props.errorMessage ? <span className='login-container__toast-errorMessage' ><b>{props.errorMessage}</b></span> : null
+                props.errorMessage ? 
+                <Toast errorMessage={props.errorMessage} errorCode={props.errorCode} />
+                : null
             }
             <h1 className='login-container__section-title'> {props.newUserLogin ? `Успешная регистрация пользователя ${props.newUserLogin}` : 'Регистрация'} </h1>
             <div className='login-container__form-container'>
@@ -52,7 +57,8 @@ const Registration = (props: any) => {
 let mapStateToProps = (state: any) => {
     return {
         newUserLogin: state.loginReducer.newUserLogin,
-        errorMessage: state.loginReducer.errorMessage
+        errorMessage: state.loginReducer.errorMessage,
+        errorCode: state.loginReducer.errorCode
     }
 }
 export default compose(

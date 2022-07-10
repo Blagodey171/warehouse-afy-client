@@ -2,8 +2,8 @@ import axios from 'axios';
 const url = 'http://localhost:3001'
 const urlHeroku = 'https://warehouse-afy-server.herokuapp.com'
 const urlbeget = 'http://213.139.209.42:3001'
-const currentURL = urlHeroku
-export const registration = async (login, password, handlerName) => {
+const currentURL = url
+export const registration = async (login, password) => {
     return await axios({
         method: 'post',
         url: `${currentURL}/api/registration`,
@@ -11,12 +11,12 @@ export const registration = async (login, password, handlerName) => {
             'Content-Type': 'application/json',
         },
         data: {
-            login, password, handlerName
+            login, password
         },
         withCredentials: true
     })
 }
-export const authentification = async (login, password, handlerName) => {
+export const authentification = async (login, password ) => {
     return await axios({
         method: 'post',
         url: `${currentURL}/api/login`,
@@ -26,25 +26,24 @@ export const authentification = async (login, password, handlerName) => {
         data: {
             login,
             password,
-            handlerName
         },
         withCredentials: true
     })
 }
-export const logout = async (login, handlerName) => {
+export const logout = async (login, deviceId) => {
     return await axios({
         method: 'post',
         url: `${currentURL}/api/logout`,
         headers: { 'Content-Type': 'application/json' },
         data: {
             login,
-            handlerName
+            deviceId
         },
         withCredentials: true
     })
 }
 
-export const authorization = async (token) => {
+export const authorization = async (token, login, deviceId) => {
     return await axios({
         method: 'post',
         url: `${currentURL}/api/authorization`,
@@ -52,7 +51,10 @@ export const authorization = async (token) => {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
+        data: {
+            login,
+            deviceId
+        },
         withCredentials: true
     })
 }
-

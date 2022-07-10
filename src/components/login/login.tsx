@@ -7,19 +7,25 @@ import { useForm } from 'react-hook-form'
 
 import type {RootState} from '../../redux/store'
 import { settingsValidation } from '../../settings-validation/settings-validation'
-import { loginThunk } from '../../redux/loginReducer'
+import { loginThunk, IerrorObject, showErrorAC } from '../../redux/loginReducer'
+import Toast from './toastLogin/toastLogin'
 
 
-interface RegistrationData {
+interface IauthenticationData {
     login: string
     password: string
 }
 interface Iprops {
     authStatus: boolean
     token: string
-    errorMessage: string
-    data: object
-    loginThunk(login:string, password:string) : void
+    errorMessage: string,
+    errorCode: number,
+    dataApp: object,
+    loginThunk(login:string, password:string) : void,
+    showErrorAC(errorObject: IerrorObject) : {
+        type: string,
+        displayError: IerrorObject
+    }
 }
 
 
@@ -27,8 +33,18 @@ interface Iprops {
 const Login:React.FC<Iprops> = (props) => {
     const { register, handleSubmit, formState: { errors } } = useForm()
     
-    const authentification = (data:RegistrationData) => {
+    const authentication = (data:IauthenticationData) => {
         props.loginThunk(data.login, data.password)
+    }
+    const errorCodeReset = () => {
+        props.showErrorAC({
+            errorCode: null,
+            errorMessage: null
+        })
+    }
+
+    const toastHandler = () => {
+        
     }
     
     if (props.authStatus) {  
@@ -37,12 +53,15 @@ const Login:React.FC<Iprops> = (props) => {
     
     return (
         <section className='login-container'>
-            {
-                props.errorMessage ? <span className='login-container__toast-errorMessage' ><b>{props.errorMessage}</b></span> : null
-            }
             <h1 className='login-container__section-title'>Вход</h1>
+
+            {
+                props.errorMessage ?
+                <Toast errorMessage={props.errorMessage} positiveToastHandler={toastHandler} errorCode={props.errorCode} errorCodeReset={errorCodeReset}/>
+                : null
+            }
             <div className='login-container__form-container'>
-                <form onSubmit={handleSubmit(authentification)} className='login-form'>
+                <form onSubmit={handleSubmit(authentication)} className='login-form'>
 
                     <label className='login-form__label' htmlFor='login'>Login / Логин</label>
                     <input autoComplete='false' className='login-form__menu-item' {...register('login', { required: true, maxLength: settingsValidation.maxLenght, minLength: settingsValidation.minLenght })} />
@@ -68,11 +87,13 @@ let mapStateToProps = function (state: RootState) {
         authStatus: state.appReducer.authStatus,
         token: state.loginReducer.token,
         errorMessage: state.loginReducer.errorMessage,
-        data: state.loginReducer.data,
+        errorCode: state.loginReducer.errorCode,
+        dataApp: state.loginReducer.dataApp,
     }
 }
 export default compose(
     connect(mapStateToProps, {
         loginThunk,
+        showErrorAC
     }),
 )(Login)

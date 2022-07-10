@@ -1,7 +1,7 @@
 // import { displayLoadingPageAC } from './appReducer';
-import { authorization } from '../DAL/authUsers'
+import { authorization } from '../../DAL/authUsers'
 import { AnyAction } from 'redux'
-import type {AppDispatch} from './store'
+import type {AppDispatch} from '../store'
 // import { logoutAC } from '../redux/loginReducer'
 
 
@@ -9,21 +9,17 @@ const VIEW_USER_DATA_APP = 'VIEW_USER_DATA_APP';
 const SET_AUTH_STATUS = 'SET_AUTH_STATUS'
 const SET_DISPLAY_LOADING_PAGE_STATUS = 'SET_DISPLAY_LOADING_PAGE_STATUS'
 const DELETE_JWT_TOKEN = 'DELETE_JWT_TOKEN'
-export interface IqueryParams {
-    widthForTransformHeader330: string,
-    widthForTransformHeader530: string,
-    widthForTransformHeader580: string,
-    widthForTransformHeader700: string,
-    widthForTransformHeader900: string,
-}
+
+
 export interface IappState {
-    authStatus: boolean, 
+    authStatus?: boolean,
     displayLoadingPage: boolean,
     dataApp: object
 }
+
+
 const initialState : IappState = {
     authStatus: false,
-    
     displayLoadingPage: false,
     dataApp: {}
 } 
@@ -73,25 +69,35 @@ export const viewUserDataACapp = (data: object) => {
     }
 }
 
-export const verifyUserTokenThunk = (token: string) => {
+export const verifyUserTokenThunk = (token: string, login: string, deviceId: string) => {
     return async (dispatch: AppDispatch) => {
         dispatch(displayLoadingPageAC(true))
-        const decoded = await authorization(token)
-        if ( decoded.data.parseSession ) { 
-            dispatch(displayLoadingPageAC(false))
-            localStorage.setItem('token', decoded.data.parseSession.token)
-            dispatch(setAuthStatusAC(true))
-        } else if (decoded.data.decodeUserData) {
-            dispatch(setAuthStatusAC(true))
-            dispatch(viewUserDataACapp(decoded.data))
-             // для отображение в пропсах,чтобы смотреть что пришло
-            dispatch(displayLoadingPageAC(false))
-        } else {
-            // нужно удалить
-            dispatch(setAuthStatusAC(false))
-            localStorage.clear()
-            dispatch(displayLoadingPageAC(false))
-        }
+        const decoded = await authorization(token, login, deviceId)
+        // if ( decoded.data.parseSession ) { 
+        //     dispatch(displayLoadingPageAC(false))
+        //     localStorage.setItem('token', decoded.data.parseSession.token)
+        //     dispatch(setAuthStatusAC(true))
+        // } else if (decoded.data.decodeUserData) {
+        //     dispatch(setAuthStatusAC(true))
+        //     dispatch(viewUserDataACapp(decoded.data))
+        //      // для отображение в пропсах,чтобы смотреть что пришло
+        //     dispatch(displayLoadingPageAC(false))
+            // }
+        // if(decoded.data.newAccessToken) {
+        //     dispatch(viewUserDataACapp(decoded.data))
+        //     dispatch(displayLoadingPageAC(false))
+        //     localStorage.setItem('token', decoded.data.newAccessToken)
+        //     dispatch(setAuthStatusAC(true))
+        // } else if (decoded.data.decodeUserData) {
+        //         dispatch(setAuthStatusAC(true))
+        //         dispatch(viewUserDataACapp(decoded.data))
+        //          // для отображение в пропсах,чтобы смотреть что пришло
+        //         dispatch(displayLoadingPageAC(false))
+        // } else {
+        //     // нужно удалить
+        //     dispatch(setAuthStatusAC(false))
+        //     dispatch(displayLoadingPageAC(false))
+        // }
     }
 }
 

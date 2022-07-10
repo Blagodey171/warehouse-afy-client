@@ -1,5 +1,5 @@
 import { createStore, combineReducers, applyMiddleware} from 'redux';
-import appReducer from './appReducer';
+import appReducer from './appReducer/appReducer';
 import headerReducer from './headerReducer/headerReducer';
 import loginReducer from './loginReducer';
 import thunk from 'redux-thunk';

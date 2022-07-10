@@ -1,12 +1,12 @@
-import React, { useEffect, createContext, MouseEvent} from 'react';
+import React, { useEffect, createContext, MouseEvent, useMemo} from 'react';
 import { connect } from 'react-redux'
 import { compose } from 'redux'
 import { Route, useHistory } from 'react-router-dom'
-import useMediaQuery from '@material-ui/core/useMediaQuery'
+import {useMediaQuery} from 'react-responsive'
 import type { RootState } from '../../redux/store'
 
-import { verifyUserTokenThunk, displayLoadingPageAC } from '../../redux/appReducer'
-import type { IappState } from '../../redux/appReducer'
+import { verifyUserTokenThunk, displayLoadingPageAC } from '../../redux/appReducer/appReducer'
+import type { IappState } from '../../redux/appReducer/appReducer'
 
 import './app.scss';
 import Header from '../header/header'
@@ -20,7 +20,7 @@ export const mediaQueryContext = createContext({})
 
 interface Iprops extends IappState {
     dataApp: object
-    verifyUserTokenThunk(token: string): Promise<void>
+    verifyUserTokenThunk(token: string, login: string): Promise<void>
     displayLoadingPageAC(status: boolean): object
 }
 // Добавить ХОК-редирект роутам(кроме регистрации)
@@ -28,28 +28,6 @@ interface Iprops extends IappState {
 const App: React.FC<Iprops> = (props) => {
 
     const history = useHistory()
-    // const queryParams = useCallback(
-    //     function createUseMediaQueryObject<T>(query: T) {
-    //         interface testObj {
-    //             [key: string]: boolean
-    //         }
-
-    //         let queryObject: testObj = {}
-    //         const entries = Object.entries(query)
-    //         entries.forEach((arr: string[]) => {
-    //             queryObject[arr[0]] = useMediaQuery(arr[1])
-    //         })
-    //         console.log('transform')
-    //         return queryObject
-    //     }
-    //     , [props.mediaQuery])
-    const mediaQuery = {
-        widthForTransformHeader330: useMediaQuery("(max-width: 330px)"),
-        widthForTransformHeader530: useMediaQuery("(max-width: 530px)"),
-        widthForTransformHeader580: useMediaQuery("(max-width: 580px)"),
-        widthForTransformHeader700: useMediaQuery("(max-width: 700px)"),
-        widthForTransformHeader900: useMediaQuery("(max-width: 900px)"),
-    }
     
     const closeMenuBlock = (e: MouseEvent) => {
         const menuBlock = document.querySelector('.header__menu-block')
@@ -61,20 +39,18 @@ const App: React.FC<Iprops> = (props) => {
         }
     }
     
-    
     useEffect(() => {
         if (localStorage.getItem('token')) {
-            props.verifyUserTokenThunk(localStorage.getItem('token'))
+            props.verifyUserTokenThunk(localStorage.getItem('token'), localStorage.getItem('login')) 
         } else {
             history.push('/login')
         }
     }, [])
+
     console.log(props)
     return (
         <div className='app' onClick={closeMenuBlock}>
-            <mediaQueryContext.Provider value={mediaQuery}>
                 <Header />
-            </mediaQueryContext.Provider>
             <main className='content'>
                 {
                     props.displayLoadingPage
@@ -96,10 +72,10 @@ const App: React.FC<Iprops> = (props) => {
 }
 // подключение библиотеки reselect!
 let mapStateToProps = (state: RootState) => {
+    console.log('mapstate APP')
     return {
-        authStatus: state.appReducer.authStatus,
         displayLoadingPage: state.appReducer.displayLoadingPage,
-        dataApp: state.appReducer.dataApp, // для просмотра пропсов - потом удалить
+        dataApp: state.loginReducer.dataApp, // для просмотра пропсов - потом удалить
     }
 }
 export default compose(

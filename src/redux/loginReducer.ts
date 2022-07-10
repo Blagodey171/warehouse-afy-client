@@ -1,5 +1,5 @@
 import { authentification, registration, logout } from '../DAL/authUsers'
-import { setAuthStatusAC } from './appReducer'
+import { setAuthStatusAC } from './appReducer/appReducer'
 import { batch } from 'react-redux'
 import { AnyAction } from 'redux'
 
@@ -12,11 +12,18 @@ const LOGOUT = 'LOGOUT'
 const VIEW_USER_DATA_LOGIN = 'VIEW_USER_DATA_LOGIN';
 
 interface Istate  {
-    login: string,
-    token: string,
-    newUserLogin: string,
-    errorMessage: string,
-    data: null
+    login: string | null,
+    token: string | null,
+    newUserLogin: string | null,
+    errorMessage: string | null,
+    errorCode: number | null,
+    dataApp: null
+}
+
+export interface IerrorObject {
+    errorMessage: string | null,
+    errorCode: number | null,
+    
 }
 
 const initialState: Istate = {
@@ -24,7 +31,8 @@ const initialState: Istate = {
     token: null,
     newUserLogin: null,
     errorMessage: null,
-    data: null
+    errorCode: null,
+    dataApp: null
 }
 
 
@@ -53,13 +61,14 @@ const loginReducer = (state = initialState, action: AnyAction ) => {
         case SHOW_ERROR : {
             return {
                 ...state,
-                errorMessage: action.errorMessage
+                errorMessage: action.displayError.errorMessage,
+                errorCode: action.displayError.errorCode
             }
         }
         case VIEW_USER_DATA_LOGIN: {
             return {
                 ...state,
-                data: action.data
+                dataApp: action.data
             }
         }
         default : {
@@ -90,10 +99,10 @@ export const registrationAC = (login: string) => {
         login,
     }
 }
-export const showErrorAC = (errorMessage: string) => {
+export const showErrorAC = (errorObject: IerrorObject ) => {
     return {
         type: SHOW_ERROR,
-        errorMessage,
+        displayError: errorObject
     }
 }
 export const viewUserDataAClogin = (data: object) => {
@@ -105,35 +114,51 @@ export const viewUserDataAClogin = (data: object) => {
 
 export const loginThunk = (login: string, password: string) => {
     return async (dispatch: AppDispatch) => {
-        let loginRequest = await authentification(login, password, LOGIN)
+        let loginRequest = await authentification(login, password)
         if (loginRequest.data.errorMessage) {
-            dispatch(showErrorAC(loginRequest.data.errorMessage))
+            dispatch(showErrorAC(loginRequest.data))
         } else {
             batch(() => {
-                dispatch(showErrorAC(null))
-                dispatch(loginAC(loginRequest.data.login, loginRequest.data.token))
+                dispatch(showErrorAC({
+                    errorMessage: null,
+                    errorCode: null
+                }))
+                dispatch(loginAC(loginRequest.data.login, loginRequest.data.accessToken))
                 dispatch(setAuthStatusAC(true))
                 dispatch(viewUserDataAClogin(loginRequest.data))
             })
-            localStorage.setItem('token', loginRequest.data.token)
+            localStorage.setItem('token', loginRequest.data.accessToken)
             localStorage.setItem('login', loginRequest.data.login)
+            localStorage.setItem('deviceId', loginRequest.data.deviceId)
         }
     }
 }
 
-export const logoutThunk = (userLogin: string) => {
+
+export const logoutThunk = (userLogin: string, deviceId: string) => {
     return async (dispatch: AppDispatch) => {
         localStorage.clear()
         dispatch(logoutAC())
-        await logout(userLogin, LOGOUT)
+        const logoutRequest = await logout(userLogin, deviceId)
+        if(logoutRequest.data.errorMessage) {
+            dispatch(showErrorAC(logoutRequest.data.errorMessage))
+        } else {
+            dispatch(viewUserDataAClogin(logoutRequest.data))
+        } // обработка сообщения logout
+
     }
 }
 export const registrationThunk = (login: string, password: string) => {
     return async (dispatch: AppDispatch) => {
-        let registrationResponse = await registration(login, password, REGISTRATION)
+        let registrationResponse = await registration(login, password)
         if (registrationResponse.data.errorMessage) {
-            dispatch(showErrorAC(registrationResponse.data.errorMessage))
+            dispatch(showErrorAC({
+                errorMessage: registrationResponse.data.errorMessage,
+                errorCode: 4
+            
+            }))
         } else {
+            console.log(registrationResponse)
             dispatch(registrationAC(registrationResponse.data.newUserLogin))
         }
     }
