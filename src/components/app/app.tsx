@@ -20,7 +20,7 @@ export const mediaQueryContext = createContext({})
 
 interface Iprops extends IappState {
     dataApp: object
-    verifyUserTokenThunk(token: string, login: string): Promise<void>
+    verifyUserTokenThunk(token: string, login: string, deviceId:string): Promise<void>
     displayLoadingPageAC(status: boolean): object
 }
 // Добавить ХОК-редирект роутам(кроме регистрации)
@@ -41,7 +41,7 @@ const App: React.FC<Iprops> = (props) => {
     
     useEffect(() => {
         if (localStorage.getItem('token')) {
-            props.verifyUserTokenThunk(localStorage.getItem('token'), localStorage.getItem('login')) 
+            props.verifyUserTokenThunk(localStorage.getItem('token'), localStorage.getItem('login'), localStorage.getItem('deviceId')) 
         } else {
             history.push('/login')
         }

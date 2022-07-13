@@ -72,7 +72,8 @@ export const viewUserDataACapp = (data: object) => {
 export const verifyUserTokenThunk = (token: string, login: string, deviceId: string) => {
     return async (dispatch: AppDispatch) => {
         dispatch(displayLoadingPageAC(true))
-        const decoded = await authorization(token, login, deviceId)
+        const authorData = await authorization(token, login, deviceId)
+        console.log(authorData)
         // if ( decoded.data.parseSession ) { 
         //     dispatch(displayLoadingPageAC(false))
         //     localStorage.setItem('token', decoded.data.parseSession.token)
